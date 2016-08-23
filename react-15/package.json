@@ -1,0 +1,23 @@
+{
+  "name": "react-15",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "",
+  "license": "BSD-3-Clause",
+  "devDependencies": {
+    "react": "^15.3.1",
+    "react-addons-create-fragment": "^15.3.1",
+    "react-addons-css-transition-group": "^15.3.1",
+    "react-addons-linked-state-mixin": "^15.3.1",
+    "react-addons-pure-render-mixin": "^15.3.1",
+    "react-addons-shallow-compare": "^15.3.1",
+    "react-addons-transition-group": "^15.3.1",
+    "react-addons-update": "^15.3.1",
+    "react-dom": "^15.3.1",
+    "react-tap-event-plugin": "^1.0.0"
+  }
+}

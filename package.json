@@ -1,0 +1,19 @@
+{
+  "name": "core-resource-app",
+  "version": "25.0.0",
+  "description": "App that contains assets and scripts for the core apps",
+  "main": "webpack.config.lodash-functional.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "Mark Polak",
+  "license": "BSD-3-Clause",
+  "devDependencies": {
+    "babel-core": "^6.13.2",
+    "babel-loader": "^6.2.5",
+    "lodash": "^4.15.0",
+    "node-fetch": "^1.6.0",
+    "webpack": "^2.1.0-beta.21",
+    "webpack-visualizer-plugin": "^0.1.5"
+  }
+}
