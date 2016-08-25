@@ -4,6 +4,11 @@
   "description": "App that contains assets and scripts for the core apps",
   "main": "webpack.config.lodash-functional.js",
   "scripts": {
+    "manifest": "d2-manifest package.json ./build/manifest.webapp",
+    "build-icon": "cp icon.png ./build/icon.png",
+    "build-resources": "./build.sh",
+    "build-html": "cp index.html ./build/index.html",
+    "build": "npm run manifest && npm run build-resources && npm run build-html && npm run build-icon",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "author": "Mark Polak",
@@ -11,9 +16,17 @@
   "devDependencies": {
     "babel-core": "^6.13.2",
     "babel-loader": "^6.2.5",
+    "d2-manifest": "^1.0.0",
+    "jsdelivr": "^0.1.2",
     "lodash": "^4.15.0",
     "node-fetch": "^1.6.0",
     "webpack": "^2.1.0-beta.21",
     "webpack-visualizer-plugin": "^0.1.5"
+  },
+  "manifest.webapp": {
+    "appType": "RESOURCE",
+    "icons": {
+      "48": "icon.png"
+    }
   }
 }

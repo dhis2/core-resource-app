@@ -2,6 +2,7 @@ const fetch = require('node-fetch');
 const _ = require('lodash/fp');
 const writeFileSync = require('fs').writeFileSync;
 const exec = require('child_process').exec;
+const jsdelivr = require('jsdelivr');
 
 function spy(v) {
     console.log(v);
@@ -96,7 +97,11 @@ const install = _.curry((library, buildFolder, versionPromise) => {
     return Promise.resolve(versionPromise)
         .then(loadAllFileAssetsFromCDN(library))
         .then(writeAllFileAssetsToBuildFolder(buildFolder, library))
-        .then(writeInstallSummary);
+        .then(writeInstallSummary)
+        .catch(error => {
+            console.error('Something went wrong during the install', error);
+            return Promise.reject(error);
+        });
 });
 
 const getVersionsToInstall = _.curry((library, lodashVersions) => _.compose(filterNeededVersions(lodashVersions), promisify(warnForNonExistentVersions(lodashVersions)))(getLibraryVersionsFromCDN(library)));

@@ -1,0 +1,20 @@
+{
+  "launch_path": "index.html",
+  "default_locale": "en",
+  "activities": {
+    "dhis": {
+      "href": "*"
+    }
+  },
+  "appType": "APP",
+  "name": "core-resource-app",
+  "version": "25.0.0",
+  "description": "App that contains assets and scripts for the core apps",
+  "developer": {
+    "name": "Mark Polak"
+  },
+  "icons": {
+    "48": "icon.png"
+  },
+  "manifest_generated_at": "Thu Aug 25 2016 12:03:28 GMT+0200 (CEST)"
+}
