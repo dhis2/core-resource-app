@@ -28,5 +28,16 @@
     "icons": {
       "48": "icon.png"
     }
-  }
+  },
+  "dependencies": {
+    "jsdelivr": "^0.1.2"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/dhis2/core-resource-app.git"
+  },
+  "bugs": {
+    "url": "https://github.com/dhis2/core-resource-app/issues"
+  },
+  "homepage": "https://github.com/dhis2/core-resource-app#readme"
 }
