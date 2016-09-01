@@ -10,7 +10,8 @@
     "build-html": "cp index.html ./build/index.html",
     "build": "npm run manifest && npm run build-resources && npm run build-html && npm run build-icon",
     "prebuild": "rm -rf build || true && mkdir build",
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "deploy": "npm version patch && npm run build && mvn clean deploy"
   },
   "author": "Mark Polak",
   "license": "BSD-3-Clause",
