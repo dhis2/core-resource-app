@@ -5,4 +5,7 @@ node_js:
 script:
 
 script:
-  - npm run build
+  - "cd react-14 && npm install"
+  - "cd .. && cd react-15 && npm install"
+  - "cd .. && cd lodash-fp && npm install"
+  - "npm run build"
