@@ -4,6 +4,6 @@ module.exports = createWebpackConfig(__dirname)
     .withEntry('./lodash-functional.js')
     .withOutput({
         filename: 'lodash-functional/lodash-functional.js',
-        libraryName: 'fp',
+        library: 'fp',
     })
     .build();
