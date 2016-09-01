@@ -1,5 +1,4 @@
 const webpack = require('webpack');
-const Visualizer = require('webpack-visualizer-plugin');
 const { isString } = require('lodash');
 
 function withEntry(config, entry) {
@@ -19,7 +18,7 @@ function withOutput(config, output) {
 }
 
 function withPlugins(config, plugins) {
-    config.plugins = Object.assign(config.plugins || {}, plugins);
+    config.plugins = (config.plugins || []).concat(plugins);
 
     return config;
 }
@@ -39,9 +38,6 @@ function createWebpackConfig(dirname) {
             publicPath: './',
             libraryTarget: 'var',
         },
-        plugins: [
-            new Visualizer,
-        ],
     };
 
     partialConfig.withEntry = withEntry.bind(null, partialConfig);
