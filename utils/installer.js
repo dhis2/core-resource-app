@@ -14,7 +14,7 @@ function mkdirp(path) {
         const command = `mkdir -p "${path}"`;
         const options = {};
 
-        function callback(error, stdout, stderr) {
+        function callback(error /*, stdout, stderr */) {
             if (error) {
                 reject(error);
             }
@@ -24,19 +24,9 @@ function mkdirp(path) {
     });
 }
 
-const splitVersion = _.compose(_.map(Number), _.split('.'));
 const getLibraryInfo = (libraryName) => fetch(`https://api.jsdelivr.com/v1/jsdelivr/libraries?name=${libraryName}`).then(response => response.json());
-
-const getMajor = _.compose(_.head, _.get('version'));
-const getMinor = _.compose(_.head, _.at(1), _.get('version'));
-const getPatch = _.compose(_.head, _.at(2), _.get('version'));
-
 const waitForAllToResolve = (promises) => Promise.all(promises);
-
-const joinVersion = (item) => Object.assign({}, item, { version: _.compose(_.join('.'), _.get('version'))(item) })
-const requiredVersionsOnly = (lodashVersions) => _.pick(_.map(_.toString, lodashVersions));
 const fetchFromCDN = _.curry((libraryName, version, filename) => fetch(`https://cdn.jsdelivr.net/${libraryName}/${version}/${filename}`));
-
 const getFileContent = _.curry((library, version, file) => Promise
     .resolve(fetchFromCDN(library, version, file))
     .then(response => response.buffer())
@@ -63,13 +53,10 @@ const writeToDisk = _.curry((folder, filename, contentStream) => {
 });
 
 const promisify = _.curry((func, promise) => Promise.resolve(promise).then(func));
-
 const extractCDNPayload = promisify(_.compose(_.get('assets'), _.first));
 const createVersionsObject = promisify(_.groupBy(_.get('version')));
 const getLibraryVersions = _.compose(createVersionsObject, extractCDNPayload);
-
 const versionNotAvailable = version => console.warn(`WARNING: Version ${version} is not available on the CDN`);
-
 const getLibraryVersionsFromCDN = (libraryName) => getLibraryVersions(getLibraryInfo(libraryName));
 const filterNeededVersions = (versions) => promisify(_.compose(_.flatten, _.values, _.pick(versions)));
 const warnForNonExistentVersions = _.curry((versionsToLoad, versionsLoaded) => {
@@ -104,7 +91,7 @@ const install = _.curry((library, buildFolder, versionPromise) => {
         });
 });
 
-const getVersionsToInstall = _.curry((library, lodashVersions) => _.compose(filterNeededVersions(lodashVersions), promisify(warnForNonExistentVersions(lodashVersions)))(getLibraryVersionsFromCDN(library)));
+const getVersionsToInstall = _.curry((library, versions) => _.compose(filterNeededVersions(versions), promisify(warnForNonExistentVersions(versions)))(getLibraryVersionsFromCDN(library)));
 
 module.exports = {
     getVersionsToInstall,

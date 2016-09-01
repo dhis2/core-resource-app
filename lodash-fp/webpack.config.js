@@ -1,3 +1,9 @@
 const createWebpackConfig = require('../utils/createWebpackConfig.js');
 
-module.exports = createWebpackConfig({ entry: { 'lodash-functional': './lodash-functional.js' } }, 'fp', __dirname);
+module.exports = createWebpackConfig(__dirname)
+    .withEntry('./lodash-functional.js')
+    .withOutput({
+        filename: 'lodash-functional.js',
+        libraryName: 'fp',
+    })
+    .build();

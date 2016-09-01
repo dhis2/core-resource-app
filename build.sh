@@ -2,13 +2,15 @@ set -e
 
 echo "Building React 14 with touch";
 cd react-14
-../node_modules/.bin/webpack --config webpack.config.js -p --progress
+../node_modules/.bin/webpack --config webpack.config.min.js -p --progress
+../node_modules/.bin/webpack --config webpack.config.js --progress
 cd ..
 echo "-Done";
 
 echo "Building React 15 with touch";
 cd react-15
-../node_modules/.bin/webpack --config webpack.config.js -p --progress
+../node_modules/.bin/webpack --config webpack.config.min.js -p --progress
+../node_modules/.bin/webpack --config webpack.config.js --progress
 cd ..
 echo "-Done";
 
