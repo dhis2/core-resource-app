@@ -6,4 +6,3 @@ script:
 
 script:
   - npm run build
-
