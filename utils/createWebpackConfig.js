@@ -24,13 +24,17 @@ function withPlugins(config, plugins) {
 }
 
 function build(config) {
+    delete config.build;
+    delete config.withPlugins;
+    delete config.withOutput;
+    delete config.withEntry;
     return config;
 }
 
 function createWebpackConfig(dirname) {
     const partialConfig = {
         context: dirname,
-        contentBase: dirname,
+        // contentBase: dirname,
         devtool: 'source-map',
         output: {
             path: dirname + '/../build/',
