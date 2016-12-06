@@ -3,7 +3,6 @@ const fetch = require('node-fetch');
 const _ = require('lodash/fp');
 const writeFileSync = require('fs').writeFileSync;
 const exec = require('child_process').exec;
-const jsdelivr = require('jsdelivr');
 
 // set theme
 colors.setTheme({
@@ -42,6 +41,8 @@ function mkdirp(path) {
 const getLibraryInfo = (libraryName) => fetch(`https://api.jsdelivr.com/v1/jsdelivr/libraries?name=${libraryName}`).then(response => response.json());
 const waitForAllToResolve = (promises) => Promise.all(promises);
 const fetchFromCDN = _.curry((libraryName, version, filename) => fetch(`https://cdn.jsdelivr.net/${libraryName}/${version}/${filename}`));
+
+// TODO: Fetch file from local cache?? if we have it available.
 const getFileContent = _.curry((library, version, file) => Promise
     .resolve(fetchFromCDN(library, version, file))
     .then(response => response.buffer())
@@ -61,6 +62,15 @@ const getFileAssets = _.curry((library, { version, files }) => {
 
 const writeToDisk = _.curry((folder, filename, contentStream) => {
     return mkdirp(folder)
+        .then(() => {
+            if (filename.split('/').length > 1) {
+                const filePath = filename.split('/');
+                filePath.pop(); // Remove the filename from the path
+
+                return mkdirp(`${folder}/${filePath.join('/')}`);
+            }
+            return true;
+        })
         .then(() => {
             writeFileSync(`${folder}/${filename}`, contentStream)
             return `${folder}/${filename}`;
@@ -93,7 +103,7 @@ function writeInstallSummary(versions) {
 
 function writeLibraryName(library) {
     console.log('');
-    console.log(colors.verbose(library));
+    console.log('🚀  ' + colors.verbose(library));
     return library;
 }
 
