@@ -1,8 +1,23 @@
+const colors = require('colors/safe');
 const fetch = require('node-fetch');
 const _ = require('lodash/fp');
 const writeFileSync = require('fs').writeFileSync;
 const exec = require('child_process').exec;
 const jsdelivr = require('jsdelivr');
+
+// set theme
+colors.setTheme({
+  silly: 'rainbow',
+  input: 'grey',
+  verbose: 'cyan',
+  prompt: 'grey',
+  info: 'green',
+  data: 'grey',
+  help: 'cyan',
+  warn: 'yellow',
+  debug: 'blue',
+  error: 'red'
+});
 
 function spy(v) {
     console.log(v);
@@ -69,22 +84,31 @@ const warnForNonExistentVersions = _.curry((versionsToLoad, versionsLoaded) => {
 
 function writeInstallSummary(versions) {
     versions.forEach(({version, files}) => {
-        console.log('');
-        console.log(`For version ${version} installed:`);
-        files.forEach(filename => console.log(` - ${filename}`));
+        console.log(colors.info(`For version ${version} installed:`));
+        files.forEach(filename => console.log(colors.data(` - ${filename}`)));
     });
 
     return versions;
 }
 
+function writeLibraryName(library) {
+    console.log('');
+    console.log(colors.verbose(library));
+    return library;
+}
+
 const loadAllFileAssetsFromCDN = (library) => _.compose(waitForAllToResolve, _.map(getFileAssets(library)));
 const writeAllFileAssetsToBuildFolder = (buildFolder, library) => _.compose(waitForAllToResolve, _.map(({ version, files }) => Promise.all(_.map(({file, content}) => writeToDisk(`${buildFolder}/${library}/${version}`, file, content), files)).then(files => ({files, version}))))
 
-const install = _.curry((library, buildFolder, versionPromise) => {
+const install = _.curry((library, buildFolder, versionPromise) => {    
     return Promise.resolve(versionPromise)
         .then(loadAllFileAssetsFromCDN(library))
         .then(writeAllFileAssetsToBuildFolder(buildFolder, library))
-        .then(writeInstallSummary)
+        .then((versions) => {
+            writeLibraryName(library);
+
+            return writeInstallSummary(versions);
+        })
         .catch(error => {
             console.error('Something went wrong during the install', error);
             return Promise.reject(error);
