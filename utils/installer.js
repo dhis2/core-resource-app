@@ -6,8 +6,18 @@ const fileExistsSync = require('fs').existsSync;
 const createReadStream = require('fs').createReadStream;
 const exec = require('child_process').exec;
 const unzip = require('unzip');
+const childProcess = require('child_process');
 
 const CACHE_LOCATION = `./.core-resource-cache`;
+
+// Supported repositories
+const CDN = 'cdn';
+const NPM = 'npm';
+
+const repositories = {
+    CDN,
+    NPM,
+};
 
 // set theme
 colors.setTheme({
@@ -68,6 +78,21 @@ const fetchFromCDN = _.curry((libraryName, version, filename) => fetch(`https://
  */
 const fetchZipForDependency = (dependencyName, version) => fetch(`https://cdn.jsdelivr.net/${dependencyName}/${version}/${dependencyName}.zip`);
 
+function fetchTarForDependency(dependencyName, version) {
+    return new Promise((resolve, reject) => {
+        childProcess.exec(`npm info ${dependencyName}@${version} dist.tarball`, function(err, stdout) {
+            if (err) {
+                return reject(err);
+            }
+
+            if (_.isString(stdout) && stdout.trim()) {
+                return resolve(fetch(stdout));
+            }
+            return reject(new Error(`Could not find tar file for ${dependencyName}@${version} at npm`));
+        });
+    });
+}
+
 /**
  * @returns {Promise} Resolves when the directory is created correctly
  */
@@ -82,14 +107,24 @@ function getCachePathLocationForDependency(dependencyName, version) {
     return `${CACHE_LOCATION}/${dependencyName}/${version}`;
 }
 
-function getCacheFileLocationForDependency(dependencyName, version) {
-    return `${getCachePathLocationForDependency(dependencyName, version)}/${dependencyName}.zip`;
+function getCacheFileLocationForDependency(repository, dependencyName, version) {
+    const extension = repository === CDN ? 'zip' : 'tgz' 
+
+    return `${getCachePathLocationForDependency(dependencyName, version)}/${dependencyName}.${extension}`;
 }
 
 const createFolderInCacheForLibrary = (libraryName, version) => createFolder(getCachePathLocationForDependency(libraryName, version)); 
 
-const getDependency = _.curry((libraryName, { version }) => {
-    const cachePath = getCacheFileLocationForDependency(libraryName, version);
+function getFileFromRepository(repository, libraryName, version) {
+    if (repository === CDN) {
+        return fetchZipForDependency(libraryName, version); 
+    }
+
+    return fetchTarForDependency(libraryName, version);
+}
+
+const getDependency = _.curry((repository, libraryName, { version }) => {
+    const cachePath = getCacheFileLocationForDependency(repository, libraryName, version);
 
     // If we already have a local file we use that
     if (fileExistsSync(cachePath)) {
@@ -102,7 +137,7 @@ const getDependency = _.curry((libraryName, { version }) => {
 
     log(`🚚  Downloading ${libraryName}`);
     // When no local file is available we'll download it first
-    return fetchZipForDependency(libraryName, version)
+    return getFileFromRepository(repository, libraryName, version)
         .then(response => response.buffer())
         .then((contentBuffer) => createFolderInCacheForLibrary(libraryName, version).then(() => contentBuffer))
         .then(contentBuffer => {
@@ -167,26 +202,51 @@ function writeLibraryName(library) {
     return library;
 }
 
-const retreiveLibraryVersionZipFiles = (library) => _.compose(waitForAllToResolve, _.map(getDependency(library)));
+const retreiveLibraryVersionZipFiles = (library) => _.compose(waitForAllToResolve, _.map(getDependency(CDN, library)));
+const retreiveLibraryVersionTarFiles = (library) => _.compose(waitForAllToResolve, _.map(getDependency(NPM, library)));
 
 const installIntoBuildDirectory = _.curry((buildFolder, dependencyName, packageVersions) => {
     log(`💾  Unpacking for ${dependencyName} `);
     
     const writePromises = _.map(({ name, version, location }) => new Promise((resolve, reject) => {
-        createReadStream(location)
-            .pipe(unzip.Extract({ path: `${buildFolder}/${name}/${version}` }))
-            .on('error', (error) => reject(error))
-            .on('finish', () => resolve({ name, version, location: `${buildFolder}/${name}/${version}` })); 
+        if (/\.zip$/.test(location)) {
+            createReadStream(location)
+                .pipe(unzip.Extract({ path: `${buildFolder}/${name}/${version}` }))
+                .on('error', (error) => reject(error))
+                .on('finish', () => resolve({ name, version, location: `${buildFolder}/${name}/${version}` }));
+        } else {
+            createFolder(`${buildFolder}/${name}/${version}`)
+                .then(() => {
+                    childProcess.exec(`tar -xf ${location} -C ${buildFolder}/${name}/${version} --strip-components=1 package/`, (err) => {
+                        if (err) {
+                            return reject(err);
+                        }
+                        resolve({ name, version, location: `${buildFolder}/${name}/${version}` });
+                    });
+                })
+                .catch((error) => {
+                    reject(error);
+                })
+            
+        }
     }), packageVersions);
     
     return Promise.all(writePromises);
 });
 
-const install = _.curry((library, buildFolder, versionPromise) => {
+function getLibraryLoader(repository, library) {
+    if (NPM === repository) {
+        return retreiveLibraryVersionTarFiles(library);
+    }
+
+    return retreiveLibraryVersionZipFiles(library);
+}
+
+const install = _.curry((repository, library, buildFolder, versionPromise) => {
     writeLibraryName(library);
 
     return Promise.resolve(versionPromise)
-        .then(retreiveLibraryVersionZipFiles(library))
+        .then(getLibraryLoader(repository, library))
         .then(installIntoBuildDirectory(buildFolder, library))
         .then((versions) => {
             log(`🌮  ${library}`)
@@ -207,4 +267,5 @@ const getVersionsToInstall = _.curry((library, versions) => {
 module.exports = {
     getVersionsToInstall,
     install,
+    repositories,
 };

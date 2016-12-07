@@ -1,5 +1,5 @@
 const _ = require('lodash/fp');
-const { install, getVersionsToInstall } = require('./utils/installer');
+const { install, getVersionsToInstall, repositories } = require('./utils/installer');
 
 let libraries;
 
@@ -10,15 +10,20 @@ try {
     process.exit(1);
 }
 
-const jsLibraries = _.get('jsdelivr', libraries);
+const cdnLibraries = _.get('jsDelivr', libraries);
+const npmLibraries = _.get('npm', libraries);
 
-if (!jsLibraries) { console.error('Nothing to install'); process.exit(1); }
+if (!npmLibraries && !cdnLibraries) { console.error('Nothing to install'); process.exit(1); }
 
-const installations = _.map((libraryName) => (
-    install(libraryName, './build', getVersionsToInstall(libraryName, _.get(libraryName, jsLibraries)))
-), _.keys(jsLibraries, jsLibraries));
+const npmInstallations = _.map((libraryName) => (
+    install(repositories.NPM, libraryName, './build', Promise.resolve(_.map(version => ({ version }), _.get(libraryName, npmLibraries))))
+), _.keys(npmLibraries, npmLibraries));
 
-Promise.all(installations)
+const cdnInstallations = _.map((libraryName) => (
+    install(repositories.CDN, libraryName, './build', getVersionsToInstall(libraryName, _.get(libraryName, cdnLibraries)))
+), _.keys(cdnLibraries, cdnLibraries));
+
+Promise.all(npmInstallations.concat(cdnInstallations))
     .then(() => {
         console.log('');
         console.log(`🙌  Great success!  🙌`);
