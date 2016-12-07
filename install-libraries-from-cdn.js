@@ -10,10 +10,21 @@ try {
     process.exit(1);
 }
 
-const jsLibraries = _.get('js', libraries);
+const jsLibraries = _.get('jsdelivr', libraries);
 
 if (!jsLibraries) { console.error('Nothing to install'); process.exit(1); }
 
-_.map((libraryName) => {
-    install(libraryName, './build', getVersionsToInstall(libraryName, _.get(libraryName, jsLibraries)));
-}, _.keys(jsLibraries, jsLibraries));
+const installations = _.map((libraryName) => (
+    install(libraryName, './build', getVersionsToInstall(libraryName, _.get(libraryName, jsLibraries)))
+), _.keys(jsLibraries, jsLibraries));
+
+Promise.all(installations)
+    .then(() => {
+        console.log('');
+        console.log(`🙌  Great success!  🙌`);
+        console.log('');
+    })
+    .catch(() => {
+        console.log(`💩  One of the installs failed  💩`);
+        process.exit(1);
+    });

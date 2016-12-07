@@ -1,20 +1,35 @@
 {
-    "js": {
+    "jsdelivr": {
         "angularjs": [
             "1.3.15"
         ],
+        "angular.bootstrap": [
+            "0.13.0"
+        ],
         "bootstrap": [
             "3.0.2"
+        ],
+        "d3js": [
+            "3.4.13"
         ],
         "jquery": [
             "1.8.2"
         ],
         "jquery.ui": [
-            "1.10.4"
+            "1.11.4"
         ],
         "lodash": [
             "3.10.1",
             "4.15.0"
+        ],
+        "leaflet": [
+            "0.7.7"
+        ],
+        "momentjs": [
+            "2.5.0"
+        ],
+        "nvd3": [
+            "1.1.15-beta"
         ],
         "rxjs": [
             "4.1.0"

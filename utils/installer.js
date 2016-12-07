@@ -2,7 +2,12 @@ const colors = require('colors/safe');
 const fetch = require('node-fetch');
 const _ = require('lodash/fp');
 const writeFileSync = require('fs').writeFileSync;
+const fileExistsSync = require('fs').existsSync;
+const createReadStream = require('fs').createReadStream;
 const exec = require('child_process').exec;
+const unzip = require('unzip');
+
+const CACHE_LOCATION = `./.core-resource-cache`;
 
 // set theme
 colors.setTheme({
@@ -23,6 +28,17 @@ function spy(v) {
     return v;
 }
 
+function log(...messages) {
+    console.log(...messages);
+}
+
+/**
+ * Promise version of `mkdir -p`
+ * 
+ * @param {string} path Path where the new folder should be created.
+ * 
+ * @returns {Promise} Resolves when the new directory was created
+ */
 function mkdirp(path) {
     return new Promise((resolve, reject) => {
         const command = `mkdir -p "${path}"`;
@@ -42,38 +58,80 @@ const getLibraryInfo = (libraryName) => fetch(`https://api.jsdelivr.com/v1/jsdel
 const waitForAllToResolve = (promises) => Promise.all(promises);
 const fetchFromCDN = _.curry((libraryName, version, filename) => fetch(`https://cdn.jsdelivr.net/${libraryName}/${version}/${filename}`));
 
-// TODO: Fetch file from local cache?? if we have it available.
-const getFileContent = _.curry((library, version, file) => Promise
-    .resolve(fetchFromCDN(library, version, file))
-    .then(response => response.buffer())
-    .then(content => ({
-        file,
-        content,
-    })));
+/**
+ * Attempts to download a zipfile for a specific version of a dependency
+ * 
+ * @param {string} dependencyName The name of the dependency to download. e.g `jquery`
+ * @param {string} version The version of the dependenncy. e.g. `1.14.0`
+ * 
+ * @returns {Promise} Fetch result for the zip file for the library
+ */
+const fetchZipForDependency = (dependencyName, version) => fetch(`https://cdn.jsdelivr.net/${dependencyName}/${version}/${dependencyName}.zip`);
 
-const getFileAssets = _.curry((library, { version, files }) => {
-    return Promise
-        .all(files.map(getFileContent(library, version)))
-        .then(files => ({
+/**
+ * @returns {Promise} Resolves when the directory is created correctly
+ */
+function createFolder(folder) {
+    return mkdirp(folder);
+}
+
+/**
+ * @returns {Promise} Returns the location where in the local cache the library zipfile would be stored
+ */
+function getCachePathLocationForDependency(dependencyName, version) {
+    return `${CACHE_LOCATION}/${dependencyName}/${version}`;
+}
+
+function getCacheFileLocationForDependency(dependencyName, version) {
+    return `${getCachePathLocationForDependency(dependencyName, version)}/${dependencyName}.zip`;
+}
+
+const createFolderInCacheForLibrary = (libraryName, version) => createFolder(getCachePathLocationForDependency(libraryName, version)); 
+
+const getDependency = _.curry((libraryName, { version }) => {
+    const cachePath = getCacheFileLocationForDependency(libraryName, version);
+
+    // If we already have a local file we use that
+    if (fileExistsSync(cachePath)) {
+        return Promise.resolve({
+            name: libraryName,
             version,
-            files,
-        }));
+            location: cachePath,
+        });
+    }
+
+    log(`🚚  Downloading ${libraryName}`);
+    // When no local file is available we'll download it first
+    return fetchZipForDependency(libraryName, version)
+        .then(response => response.buffer())
+        .then((contentBuffer) => createFolderInCacheForLibrary(libraryName, version).then(() => contentBuffer))
+        .then(contentBuffer => {
+            writeFileSync(cachePath, contentBuffer);
+            
+            return {
+                name: libraryName,
+                version,
+                location: cachePath,
+            };
+        });
 });
 
-const writeToDisk = _.curry((folder, filename, contentStream) => {
-    return mkdirp(folder)
+const writeToDisk = _.curry((buildFolder, folder, filename, contentStream) => {
+    return createCacheFolderPromise
+        .then(() => Promise.all([mkdirp(`${buildFolder}/${folder}`), mkdirp(`${CACHE_LOCATION}/${folder}/$`)])) 
         .then(() => {
             if (filename.split('/').length > 1) {
                 const filePath = filename.split('/');
                 filePath.pop(); // Remove the filename from the path
 
-                return mkdirp(`${folder}/${filePath.join('/')}`);
+                return Promise.all([mkdirp(`${buildFolder}/${folder}/${filePath.join('/')}`), mkdirp(`${CACHE_LOCATION}/${folder}/${filePath.join('/')}`)]);
             }
             return true;
         })
         .then(() => {
-            writeFileSync(`${folder}/${filename}`, contentStream)
-            return `${folder}/${filename}`;
+            writeFileSync(`${buildFolder}/${folder}/${filename}`, contentStream);
+            writeFileSync(`${CACHE_LOCATION}/${folder}/${filename}`, contentStream);
+            return `${buildFolder}/${folder}/${filename}`;
         });
 });
 
@@ -85,9 +143,12 @@ const versionNotAvailable = version => console.warn(`WARNING: Version ${version}
 const getLibraryVersionsFromCDN = (libraryName) => getLibraryVersions(getLibraryInfo(libraryName));
 const filterNeededVersions = (versions) => promisify(_.compose(_.flatten, _.values, _.pick(versions)));
 const warnForNonExistentVersions = _.curry((versionsToLoad, versionsLoaded) => {
-    versionsToLoad
-        .filter(version => Object.keys(versionsLoaded).indexOf(version) === -1)
-        .forEach(versionNotAvailable);
+    const unavailableVersions = versionsToLoad
+        .filter(version => Object.keys(versionsLoaded).indexOf(version) === -1);
+
+    if (unavailableVersions.length > 0) {
+        throw new Error(`The following versions are not available ${unavailableVersions.join(',')}`);
+    }
 
     return versionsLoaded;
 });
@@ -102,30 +163,46 @@ function writeInstallSummary(versions) {
 }
 
 function writeLibraryName(library) {
-    console.log('');
-    console.log('🚀  ' + colors.verbose(library));
+    log('🚀  ' + colors.verbose(library));
     return library;
 }
 
-const loadAllFileAssetsFromCDN = (library) => _.compose(waitForAllToResolve, _.map(getFileAssets(library)));
-const writeAllFileAssetsToBuildFolder = (buildFolder, library) => _.compose(waitForAllToResolve, _.map(({ version, files }) => Promise.all(_.map(({file, content}) => writeToDisk(`${buildFolder}/${library}/${version}`, file, content), files)).then(files => ({files, version}))))
+const retreiveLibraryVersionZipFiles = (library) => _.compose(waitForAllToResolve, _.map(getDependency(library)));
 
-const install = _.curry((library, buildFolder, versionPromise) => {    
+const installIntoBuildDirectory = _.curry((buildFolder, dependencyName, packageVersions) => {
+    log(`💾  Unpacking for ${dependencyName} `);
+    
+    const writePromises = _.map(({ name, version, location }) => new Promise((resolve, reject) => {
+        createReadStream(location)
+            .pipe(unzip.Extract({ path: `${buildFolder}/${name}/${version}` }))
+            .on('error', (error) => reject(error))
+            .on('finish', () => resolve({ name, version, location: `${buildFolder}/${name}/${version}` })); 
+    }), packageVersions);
+    
+    return Promise.all(writePromises);
+});
+
+const install = _.curry((library, buildFolder, versionPromise) => {
+    writeLibraryName(library);
+
     return Promise.resolve(versionPromise)
-        .then(loadAllFileAssetsFromCDN(library))
-        .then(writeAllFileAssetsToBuildFolder(buildFolder, library))
+        .then(retreiveLibraryVersionZipFiles(library))
+        .then(installIntoBuildDirectory(buildFolder, library))
         .then((versions) => {
-            writeLibraryName(library);
-
-            return writeInstallSummary(versions);
+            log(`🌮  ${library}`)
+            _.forEach(({ version }) => log(colors.data(`  - ${version}`)), versions);
         })
         .catch(error => {
-            console.error('Something went wrong during the install', error);
+            console.error(`Something went wrong during the installation of ${library}: `, error);
             return Promise.reject(error);
         });
 });
 
-const getVersionsToInstall = _.curry((library, versions) => _.compose(filterNeededVersions(versions), promisify(warnForNonExistentVersions(versions)))(getLibraryVersionsFromCDN(library)));
+const getVersionsToInstall = _.curry((library, versions) => {
+    const failForNonExistentVersions = promisify(warnForNonExistentVersions(versions))
+
+    return _.compose(filterNeededVersions(versions), failForNonExistentVersions)(getLibraryVersionsFromCDN(library))
+});
 
 module.exports = {
     getVersionsToInstall,
