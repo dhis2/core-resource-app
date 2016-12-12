@@ -1,9 +1,5 @@
-const createWebpackConfig = require('../utils/createWebpackConfig.js');
+const webpack = require('webpack');
+const version = require('react/package.json').version;
+const createWebpackConfigForReact = require('../utils/createWebpackConfigForReact.js');
 
-module.exports = createWebpackConfig(__dirname)
-    .withEntry('./react-with-touch.js')
-    .withOutput({
-        filename: 'react-14/react-14.js',
-        library: 'React',
-    })
-    .build();
+module.exports = createWebpackConfigForReact(__dirname, version);

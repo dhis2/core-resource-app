@@ -1,12 +1,5 @@
-const createWebpackConfig = require('../utils/createWebpackConfig.js');
-const reactPackage = require('react/package.json');
+const webpack = require('webpack');
+const version = require('react/package.json').version;
+const createWebpackConfigForReact = require('../utils/createWebpackConfigForReact.js');
 
-console.log(reactPackage.version);
-
-module.exports = createWebpackConfig(__dirname)
-    .withEntry('./react-with-touch.js')
-    .withOutput({
-        filename: 'react-15/react-15.js',
-        library: 'React',
-    })
-    .build();
+module.exports = createWebpackConfigForReact(__dirname, version);

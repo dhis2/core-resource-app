@@ -33,6 +33,9 @@
   },
   "dependencies": {
     "colors": "^1.1.2",
+    "gulp": "^3.9.1",
+    "gulp-if": "^2.0.2",
+    "gulp-rev": "^7.1.2",
     "jsdelivr": "^0.1.2",
     "unzip": "^0.1.11"
   },

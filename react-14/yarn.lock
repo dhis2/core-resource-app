@@ -202,39 +202,39 @@ q@^1.1.2:
   version "1.4.1"
   resolved "https://registry.yarnpkg.com/q/-/q-1.4.1.tgz#55705bcd93c5f3673530c2c2cbc0c2b3addc286e"
 
-react-addons-clone-with-props@^0.14.8:
+react-addons-clone-with-props@~0.14.8:
   version "0.14.8"
   resolved "https://registry.yarnpkg.com/react-addons-clone-with-props/-/react-addons-clone-with-props-0.14.8.tgz#3d481b9a9d146cf2671562e3627ad7e4c0f6b2e2"
 
-react-addons-create-fragment@^0.14.8:
+react-addons-create-fragment@~0.14.8:
   version "0.14.8"
   resolved "https://registry.yarnpkg.com/react-addons-create-fragment/-/react-addons-create-fragment-0.14.8.tgz#e83240d1cba49249690fcc6f148710baa11d2b7a"
 
-react-addons-css-transition-group@^0.14.8:
+react-addons-css-transition-group@~0.14.8:
   version "0.14.8"
   resolved "https://registry.yarnpkg.com/react-addons-css-transition-group/-/react-addons-css-transition-group-0.14.8.tgz#c7a2279e71095e743c43a3a4583a1e4f1a2dd61d"
 
-react-addons-linked-state-mixin@^0.14.8:
+react-addons-linked-state-mixin@~0.14.8:
   version "0.14.8"
   resolved "https://registry.yarnpkg.com/react-addons-linked-state-mixin/-/react-addons-linked-state-mixin-0.14.8.tgz#920a9d5b32ed0fc6e37da1b5f43a992d3a5bddb8"
 
-react-addons-pure-render-mixin@^0.14.8:
+react-addons-pure-render-mixin@~0.14.8:
   version "0.14.8"
   resolved "https://registry.yarnpkg.com/react-addons-pure-render-mixin/-/react-addons-pure-render-mixin-0.14.8.tgz#4109af2d6ceb72e3897bf343d8ae7f329a6713d4"
 
-react-addons-shallow-compare@^0.14.8:
+react-addons-shallow-compare@~0.14.8:
   version "0.14.8"
   resolved "https://registry.yarnpkg.com/react-addons-shallow-compare/-/react-addons-shallow-compare-0.14.8.tgz#1f26533d78cadabf4639756ec0dae5ab45427a74"
 
-react-addons-transition-group@^0.14.8:
+react-addons-transition-group@~0.14.8:
   version "0.14.8"
   resolved "https://registry.yarnpkg.com/react-addons-transition-group/-/react-addons-transition-group-0.14.8.tgz#3864f3bcfa180e1ab36f1efebee14fb481acf042"
 
-react-addons-update@^0.14.8:
+react-addons-update@~0.14.8:
   version "0.14.8"
   resolved "https://registry.yarnpkg.com/react-addons-update/-/react-addons-update-0.14.8.tgz#486f1fb71e09ef8ad09c0e95fbe59d173782fe1a"
 
-react-dom@^0.14.8:
+react-dom@~0.14.8:
   version "0.14.8"
   resolved "https://registry.yarnpkg.com/react-dom/-/react-dom-0.14.8.tgz#0f1c547514263f771bd31814a739e5306575069e"
 
@@ -244,7 +244,7 @@ react-tap-event-plugin@^0.2.2:
   dependencies:
     fbjs "^0.2.1"
 
-react@^0.14.8:
+react@~0.14.8:
   version "0.14.8"
   resolved "https://registry.yarnpkg.com/react/-/react-0.14.8.tgz#078dfa454d4745bcc54a9726311c2bf272c23684"
   dependencies:
