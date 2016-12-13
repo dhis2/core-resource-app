@@ -51,9 +51,6 @@
         ]
     },
     "npm": {
-        "babel-polyfill": [
-            "6.20.0"
-        ],
         "angular-css": [
             "1.0.8"
         ],
@@ -62,6 +59,12 @@
         ],
         "angular-ui-select2": [
             "0.0.5"
+        ],
+        "babel-polyfill": [
+            "6.20.0"
+        ],
+        "d2-ui": [
+            "25.5.4"
         ],
         "leaflet-geocoder-mapzen": [
             "1.4.1"
