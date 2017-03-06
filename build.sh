@@ -9,8 +9,17 @@ cd react-14
 cd ..
 echo "- Done";
 
-echo "Building React 15 with touch";
-cd react-15
+echo "Building React 15.3 with touch";
+cd react-15.3
+# Minified
+../node_modules/.bin/webpack --config webpack.config.js -p --progress
+# Regular
+../node_modules/.bin/webpack --config webpack.config.js --progress
+cd ..
+echo "- Done";
+
+echo "Building React 15.4 with touch";
+cd react-15.4
 # Minified
 ../node_modules/.bin/webpack --config webpack.config.js -p --progress
 # Regular
@@ -49,7 +58,7 @@ cp -v build/react/0.14.8/react-with-touch-tap-plugin.js.map build/react-14/react
 cp -v build/react/0.14.8/react-with-touch-tap-plugin.min.js build/react-14/react-14.min.js
 cp -v build/react/0.14.8/react-with-touch-tap-plugin.min.js.map build/react-14/react-14.min.js.map
 
-# React 15
+# React 15.3
 mkdir -p build/react-15/
 cp -v build/react/15.3.2/react-with-touch-tap-plugin.js build/react-15/react-15.js
 cp -v build/react/15.3.2/react-with-touch-tap-plugin.js.map build/react-15/react-15.js.map
