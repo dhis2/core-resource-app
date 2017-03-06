@@ -7,7 +7,8 @@ cache:
   - node_modules
 script:
 - cd react-14 && yarn install && cd ..
-- cd react-15 && yarn install && cd ..
+- cd react-15.3 && yarn install && cd ..
+- cd react-15.4 && yarn install && cd ..
 - cd lodash-fp && yarn install && cd ..
 - npm run build
 after_success:
