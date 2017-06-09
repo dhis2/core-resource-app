@@ -52,6 +52,33 @@
         ]
     },
     "npm": {
+        "angular": [
+            "1.6.4"
+        ],
+        "angular-cookies": [
+            "1.6.4"
+        ],
+        "angular-animate": [
+            "1.6.4"
+        ],
+        "angular-mocks": [
+            "1.6.4"
+        ],
+        "angular-sanitize": [
+            "1.6.4"
+        ],
+        "angular-messages": [
+            "1.6.4"
+        ],
+        "angular-route": [
+            "1.6.4"
+        ],
+        "angular-touch": [
+            "1.6.4"
+        ],
+        "angular-resource": [
+            "1.6.4"
+        ],
         "angular-css": [
             "1.0.8"
         ],
@@ -69,6 +96,15 @@
         ],
         "d2-ui": [
             "25.5.4"
+        ],
+        "jquery": [
+            "3.2.0"
+        ],
+        "jquery-migrate": [
+            "3.0.0"
+        ],
+        "jquery-ui": [
+            "1.12.1"
         ],
         "leaflet-geocoder-mapzen": [
             "1.4.1"
