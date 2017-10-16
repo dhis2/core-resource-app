@@ -1,40 +1,40 @@
 set -e
 
 printf "\e[32mBuilding React 14 with touch...\n\e[0m"
-pushd react-14
+cd react-14
 yarn install
 # Minified
 ../node_modules/.bin/webpack --config webpack.config.js -p --progress
 # Regular
 ../node_modules/.bin/webpack --config webpack.config.js --progress
-popd
+cd ..
 printf "\e[33m- Done\n\e[0m"
 
 printf "\e[32mBuilding React 15.3 with touch...\n\e[0m"
-pushd react-15.3
+cd react-15.3
 yarn install
 # Minified
 ../node_modules/.bin/webpack --config webpack.config.js -p --progress
 # Regular
 ../node_modules/.bin/webpack --config webpack.config.js --progress
-popd
+cd ..
 printf "\e[33m- Done\n\e[0m"
 
 printf "\e[32mBuilding React 15.4 with touch...\n\e[0m"
-pushd react-15.4
+cd react-15.4
 yarn install
 # Minified
 ../node_modules/.bin/webpack --config webpack.config.js -p --progress
 # Regular
 ../node_modules/.bin/webpack --config webpack.config.js --progress
-popd
+cd ..
 printf "\e[33m- Done\n\e[0m"
 
 printf "\e[32mBuilding Lodash functional that does not overwrite global...\n\e[0m"
-pushd lodash-fp
+cd lodash-fp
 yarn install
 ../node_modules/.bin/webpack --config webpack.config.js -p --progress
-popd
+cd ..
 printf "\e[33m- Done\n\e[0m"
 
 printf "\e[32mInstalling JavaScript libraries from libraries.json...\n\e[0m"
