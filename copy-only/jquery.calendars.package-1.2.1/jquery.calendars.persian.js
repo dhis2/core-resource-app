@@ -1,144 +1,86 @@
-﻿/* http://keith-wood.name/calendars.html
+/* http://keith-wood.name/calendars.html
    Persian calendar for jQuery v1.2.1.
    Written by Keith Wood (kbwood{at}iinet.com.au) August 2009.
    Available under the MIT (https://github.com/jquery/jquery/blob/master/MIT-LICENSE.txt) license. 
-   Please attribute the author if you use it. */
+   Please attribute the author if you use it.
+   Note: Has been altered from the original source to use transliterated 
+   Afghan Persian month names.
+    */
+(function($) {
+    function PersianCalendar(a) {
+        this.local = this.regional[a || ''] || this.regional['']
+    }
+    PersianCalendar.prototype = new $.calendars.baseCalendar;
+    $.extend(PersianCalendar.prototype, {
+        name: 'Persian',
+        jdEpoch: 1948320.5,
+        daysPerMonth: [31, 31, 31, 31, 31, 31, 30, 30, 30, 30, 30, 29],
+        hasYearZero: false,
+        minMonth: 1,
+        firstMonth: 1,
+        minDay: 1,
+        regional: {
+            '': {
+                name: 'Persian',
+                epochs: ['BP', 'AP'],
+                monthNames: ['Hamal', 'Sawr', 'Jawzā', 'Saratān', 'Asad', 'Sonbola', 'Mizān', '‘Aqrab', 'Qaws', 'Jadi' , 'Dalvæ', 'Hūt'],
+                monthNamesShort: ['Ham', 'Saw', 'Jaw', 'Sar', 'Asa', 'Son', 'Miz', 'Aqr', 'Qaw', 'Jad', 'Dal', 'Hūt'],
+                dayNames: ['Yekshambe', 'Doshambe', 'Seshambe', 'Chæharshambe', 'Panjshambe', 'Jom\'e', 'Shambe'],
+                dayNamesShort: ['Yek', 'Do', 'Se', 'Chæ', 'Panj', 'Jom', 'Sha'],
+                dayNamesMin: ['Ye', 'Do', 'Se', 'Ch', 'Pa', 'Jo', 'Sh'],
+                dateFormat: 'yyyy/mm/dd',
+                firstDay: 6,
+                isRTL: false
+            }
+        },
+        leapYear: function(a) {
+            var b = this._validate(a, this.minMonth, this.minDay, $.calendars.local.invalidYear);
+            return (((((b.year() - (b.year() > 0 ? 474 : 473)) % 2820) + 474 + 38) * 682) % 2816) < 682
+        },
+        weekOfYear: function(a, b, c) {
+            var d = this.newDate(a, b, c);
+            d.add(-((d.dayOfWeek() + 1) % 7), 'd');
+            return Math.floor((d.dayOfYear() - 1) / 7) + 1
+        },
+        daysInMonth: function(a, b) {
+            var c = this._validate(a, b, this.minDay, $.calendars.local.invalidMonth);
+            return this.daysPerMonth[c.month() - 1] + (c.month() == 12 && this.leapYear(c.year()) ? 1 : 0)
+        },
+        weekDay: function(a, b, c) {
+            return this.dayOfWeek(a, b, c) != 5
+        },
+        toJD: function(a, b, c) {
+            var d = this._validate(a, b, c, $.calendars.local.invalidDate);
+            a = d.year();
+            b = d.month();
+            c = d.day();
+            var e = a - (a >= 0 ? 474 : 473);
+            var f = 474 + mod(e, 2820);
+            return c + (b <= 7 ? (b - 1) * 31 : (b - 1) * 30 + 6) + Math.floor((f * 682 - 110) / 2816) + (f - 1) * 365 + Math.floor(e / 2820) * 1029983 + this.jdEpoch - 1
+        },
+        fromJD: function(a) {
+            a = Math.floor(a) + 0.5;
+            var b = a - this.toJD(475, 1, 1);
+            var c = Math.floor(b / 1029983);
+            var d = mod(b, 1029983);
+            var e = 2820;
+            if (d != 1029982) {
+                var f = Math.floor(d / 366);
+                var g = mod(d, 366);
+                e = Math.floor(((2134 * f) + (2816 * g) + 2815) / 1028522) + f + 1
+            }
+            var h = e + (2820 * c) + 474;
+            h = (h <= 0 ? h - 1 : h);
+            var i = a - this.toJD(h, 1, 1) + 1;
+            var j = (i <= 186 ? Math.ceil(i / 31) : Math.ceil((i - 6) / 30));
+            var k = a - this.toJD(h, j, 1) + 1;
+            return this.newDate(h, j, k)
+        }
+    });
 
-(function($) { // Hide scope, no $ conflict
-
-/* Implementation of the Persian or Jalali calendar.
-   Based on code from http://www.iranchamber.com/calendar/converter/iranian_calendar_converter.php.
-   See also http://en.wikipedia.org/wiki/Iranian_calendar.
-   @param  language  (string) the language code (default English) for localisation (optional) */
-function PersianCalendar(language) {
-	this.local = this.regional[language || ''] || this.regional[''];
-}
-
-PersianCalendar.prototype = new $.calendars.baseCalendar;
-
-$.extend(PersianCalendar.prototype, {
-	name: 'Persian', // The calendar name
-	jdEpoch: 1948320.5, // Julian date of start of Persian epoch: 19 March 622 CE
-	daysPerMonth: [31, 31, 31, 31, 31, 31, 30, 30, 30, 30, 30, 29], // Days per month in a common year
-	hasYearZero: false, // True if has a year zero, false if not
-	minMonth: 1, // The minimum month number
-	firstMonth: 1, // The first month in the year
-	minDay: 1, // The minimum day number
-
-	regional: { // Localisations
-		'': {
-			name: 'Persian', // The calendar name
-			epochs: ['BP', 'AP'],
-			monthNames: ['Farvardin', 'Ordibehesht', 'Khordad', 'Tir', 'Mordad', 'Shahrivar',
-			'Mehr', 'Aban', 'Azar', 'Day', 'Bahman', 'Esfand'],
-			monthNamesShort: ['Far', 'Ord', 'Kho', 'Tir', 'Mor', 'Sha', 'Meh', 'Aba', 'Aza', 'Day', 'Bah', 'Esf'],
-			dayNames: ['Yekshambe', 'Doshambe', 'Seshambe', 'Chæharshambe', 'Panjshambe', 'Jom\'e', 'Shambe'],
-			dayNamesShort: ['Yek', 'Do', 'Se', 'Chæ', 'Panj', 'Jom', 'Sha'],
-			dayNamesMin: ['Ye','Do','Se','Ch','Pa','Jo','Sh'],
-			dateFormat: 'yyyy/mm/dd', // See format options on BaseCalendar.formatDate
-			firstDay: 6, // The first day of the week, Sun = 0, Mon = 1, ...
-			isRTL: false // True if right-to-left language, false if left-to-right
-		}
-	},
-
-	/* Determine whether this date is in a leap year.
-	   @param  year  (CDate) the date to examine or
-	                 (number) the year to examine
-	   @return  (boolean) true if this is a leap year, false if not
-	   @throws  error if an invalid year or a different calendar used */
-	leapYear: function(year) {
-		var date = this._validate(year, this.minMonth, this.minDay, $.calendars.local.invalidYear);
-		return (((((date.year() - (date.year() > 0 ? 474 : 473)) % 2820) +
-			474 + 38) * 682) % 2816) < 682;
-	},
-
-	/* Determine the week of the year for a date.
-	   @param  year   (CDate) the date to examine or
-	                  (number) the year to examine
-	   @param  month  (number) the month to examine
-	   @param  day    (number) the day to examine
-	   @return  (number) the week of the year
-	   @throws  error if an invalid date or a different calendar used */
-	weekOfYear: function(year, month, day) {
-		// Find Saturday of this week starting on Saturday
-		var checkDate = this.newDate(year, month, day);
-		checkDate.add(-((checkDate.dayOfWeek() + 1) % 7), 'd');
-		return Math.floor((checkDate.dayOfYear() - 1) / 7) + 1;
-	},
-
-	/* Retrieve the number of days in a month.
-	   @param  year   (CDate) the date to examine or
-	                  (number) the year of the month
-	   @param  month  (number) the month
-	   @return  (number) the number of days in this month
-	   @throws  error if an invalid month/year or a different calendar used */
-	daysInMonth: function(year, month) {
-		var date = this._validate(year, month, this.minDay, $.calendars.local.invalidMonth);
-		return this.daysPerMonth[date.month() - 1] +
-			(date.month() == 12 && this.leapYear(date.year()) ? 1 : 0);
-	},
-
-	/* Determine whether this date is a week day.
-	   @param  year   (CDate) the date to examine or
-	                  (number) the year to examine
-	   @param  month  (number) the month to examine
-	   @param  day    (number) the day to examine
-	   @return  (boolean) true if a week day, false if not
-	   @throws  error if an invalid date or a different calendar used */
-	weekDay: function(year, month, day) {
-		return this.dayOfWeek(year, month, day) != 5;
-	},
-
-	/* Retrieve the Julian date equivalent for this date,
-	   i.e. days since January 1, 4713 BCE Greenwich noon.
-	   @param  year   (CDate) the date to convert or
-	                  (number) the year to convert
-	   @param  month  (number) the month to convert
-	   @param  day    (number) the day to convert
-	   @return  (number) the equivalent Julian date
-	   @throws  error if an invalid date or a different calendar used */
-	toJD: function(year, month, day) {
-		var date = this._validate(year, month, day, $.calendars.local.invalidDate);
-		year = date.year();
-		month = date.month();
-		day = date.day();
-		var epBase = year - (year >= 0 ? 474 : 473);
-		var epYear = 474 + mod(epBase, 2820);
-		return day + (month <= 7 ? (month - 1) * 31 : (month - 1) * 30 + 6) +
-			Math.floor((epYear * 682 - 110) / 2816) + (epYear - 1) * 365 +
-			Math.floor(epBase / 2820) * 1029983 + this.jdEpoch - 1;
-	},
-
-	/* Create a new date from a Julian date.
-	   @param  jd  (number) the Julian date to convert
-	   @return  (CDate) the equivalent date */
-	fromJD: function(jd) {
-		jd = Math.floor(jd) + 0.5;
-		var depoch = jd - this.toJD(475, 1, 1);
-		var cycle = Math.floor(depoch / 1029983);
-		var cyear = mod(depoch, 1029983);
-		var ycycle = 2820;
-		if (cyear != 1029982) {
-			var aux1 = Math.floor(cyear / 366);
-			var aux2 = mod(cyear, 366);
-			ycycle = Math.floor(((2134 * aux1) + (2816 * aux2) + 2815) / 1028522) + aux1 + 1;
-		}
-		var year = ycycle + (2820 * cycle) + 474;
-		year = (year <= 0 ? year - 1 : year);
-		var yday = jd - this.toJD(year, 1, 1) + 1;
-		var month = (yday <= 186 ? Math.ceil(yday / 31) : Math.ceil((yday - 6) / 30));
-		var day = jd - this.toJD(year, month, 1) + 1;
-		return this.newDate(year, month, day);
-	}
-});
-
-// Modulus function which works for non-integers.
-function mod(a, b) {
-	return a - (b * Math.floor(a / b));
-}
-
-// Persian (Jalali) calendar implementation
-$.calendars.calendars.persian = PersianCalendar;
-$.calendars.calendars.jalali = PersianCalendar;
-
+    function mod(a, b) {
+        return a - (b * Math.floor(a / b))
+    }
+    $.calendars.calendars.persian = PersianCalendar;
+    $.calendars.calendars.jalali = PersianCalendar
 })(jQuery);
