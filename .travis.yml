@@ -6,10 +6,6 @@ cache:
   directories:
   - node_modules
 script:
-- cd react-14 && yarn install && cd ..
-- cd react-15.3 && yarn install && cd ..
-- cd react-15.4 && yarn install && cd ..
-- cd lodash-fp && yarn install && cd ..
 - npm run build
 after_success:
 - if ( [ "$TRAVIS_BRANCH" == "master" ] || [ ! -z "$TRAVIS_TAG" ] ) && [ "$TRAVIS_REPO_SLUG"

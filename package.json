@@ -1,17 +1,16 @@
 {
   "name": "core-resource-app",
-  "version": "26.1.2",
+  "version": "28.0.0",
   "description": "App that contains assets and scripts for the core apps",
   "main": "webpack.config.lodash-functional.js",
   "scripts": {
     "manifest": "d2-manifest package.json ./build/manifest.webapp",
     "build-icon": "cp icon.png ./build/icon.png",
     "build-resources": "./build.sh",
-    "build-html": "cp index.html ./build/index.html",
-    "build": "npm run manifest && npm run build-resources && npm run build-html && npm run build-icon",
+    "build": "yarn run manifest && yarn run build-resources && yarn run build-icon",
     "prebuild": "rm -rf build || true && mkdir build",
     "test": "echo \"Error: no test specified\" && exit 1",
-    "deploy": "npm version patch && npm run build && mvn clean deploy"
+    "deploy": "yarn run build && mvn clean deploy"
   },
   "author": "Mark Polak",
   "license": "BSD-3-Clause",
