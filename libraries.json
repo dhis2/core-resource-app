@@ -105,9 +105,6 @@
         "i18next": [
             "10.0.7"
         ],
-        "ng-i18next": [
-            "1.0.5"
-        ],
         "jquery": [
             "3.2.0"
         ],
@@ -123,10 +120,16 @@
         "leaflet-contextmenu": [
             "1.1.0"
         ],
+        "ng-i18next": [
+            "1.0.5"
+        ],
         "ng-infinite-scroll": [
             "1.0.0"
         ],
         "react": [
+            "16.1.1"
+        ],
+        "react-dom": [
             "16.1.1"
         ]
     }
