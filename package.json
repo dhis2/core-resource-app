@@ -10,11 +10,12 @@
     "build": "yarn run manifest && yarn run build-resources && yarn run build-icon",
     "prebuild": "rm -rf build || true && mkdir build",
     "test": "echo \"Error: no test specified\" && exit 1",
-    "deploy": "yarn run build && mvn clean deploy"
+    "deploy": "deploy-build"
   },
   "author": "Mark Polak",
   "license": "BSD-3-Clause",
   "devDependencies": {
+    "@dhis2/deploy-build": "^1.0.4",
     "babel-core": "^6.13.2",
     "babel-loader": "^6.2.5",
     "d2-manifest": "^1.0.0",
