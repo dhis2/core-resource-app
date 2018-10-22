@@ -9,8 +9,7 @@
     "build-resources": "./build.sh",
     "build": "yarn run manifest && yarn run build-resources && yarn run build-icon",
     "prebuild": "rm -rf build || true && mkdir build",
-    "test": "echo \"Error: no test specified\" && exit 1",
-    "deploy": "yarn run build && mvn clean deploy"
+    "test": "echo \"Error: no test specified\" && exit 1"
   },
   "author": "Mark Polak",
   "license": "BSD-3-Clause",
