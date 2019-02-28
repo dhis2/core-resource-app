@@ -1,0 +1,13 @@
+{
+  "groups": {
+    "default": {
+      "packages": [
+        "lodash-fp/package.json",
+        "package.json",
+        "react-14/package.json",
+        "react-15.3/package.json",
+        "react-15.4/package.json"
+      ]
+    }
+  }
+}
