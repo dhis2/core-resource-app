@@ -9,15 +9,15 @@
   "author": "",
   "license": "BSD-3-Clause",
   "devDependencies": {
-    "react": "15.4",
-    "react-addons-create-fragment": "15.4",
-    "react-addons-css-transition-group": "15.4",
-    "react-addons-linked-state-mixin": "15.4",
-    "react-addons-pure-render-mixin": "15.4",
-    "react-addons-shallow-compare": "15.4",
-    "react-addons-transition-group": "15.4",
-    "react-addons-update": "15.4",
-    "react-dom": "15.4",
-    "react-tap-event-plugin": "2.0.1"
+    "react": "~16.8.3",
+    "react-addons-create-fragment": "~15.6.2",
+    "react-addons-css-transition-group": "~15.6.2",
+    "react-addons-linked-state-mixin": "~15.6.2",
+    "react-addons-pure-render-mixin": "~15.6.2",
+    "react-addons-shallow-compare": "~15.6.2",
+    "react-addons-transition-group": "~15.6.2",
+    "react-addons-update": "~15.6.2",
+    "react-dom": "~16.8.3",
+    "react-tap-event-plugin": "3.0.3"
   }
 }
